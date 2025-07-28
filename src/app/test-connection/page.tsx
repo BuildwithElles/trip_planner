@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import { testSupabaseConnection } from '@/lib/test-connection'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Session } from '@supabase/supabase-js'
 
 interface ConnectionResult {
   success: boolean
   error?: string
-  session?: any
+  session?: Session | null
   environment?: {
     hasUrl: boolean
     hasAnonKey: boolean

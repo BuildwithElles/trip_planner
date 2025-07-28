@@ -1,4 +1,5 @@
 import { createClient } from './supabase/client'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export async function testSupabaseConnection() {
   try {
@@ -44,7 +45,7 @@ type DatabaseTest = {
   buckets?: string[]
 }
 
-async function testDatabaseAccess(supabase: any) {
+async function testDatabaseAccess(supabase: SupabaseClient) {
   const tests: Record<string, DatabaseTest> = {
     users: { exists: false, error: null },
     trips: { exists: false, error: null },
@@ -62,7 +63,7 @@ async function testDatabaseAccess(supabase: any) {
   
   for (const table of tables) {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from(table)
         .select('*')
         .limit(1)
@@ -92,13 +93,13 @@ async function testDatabaseAccess(supabase: any) {
     if (error) {
       tests.storage = { exists: false, error: error.message }
     } else {
-      const hasTripPhotos = buckets?.some((bucket: any) => bucket.name === 'trip-photos')
-      const hasTripReceipts = buckets?.some((bucket: any) => bucket.name === 'trip-receipts')
+      const hasTripPhotos = buckets?.some((bucket) => bucket.name === 'trip-photos')
+      const hasTripReceipts = buckets?.some((bucket) => bucket.name === 'trip-receipts')
       
       tests.storage = { 
         exists: hasTripPhotos && hasTripReceipts, 
         error: null,
-        buckets: buckets?.map((b: any) => b.name) || []
+        buckets: buckets?.map((b) => b.name) || []
       }
     }
   } catch (err) {
