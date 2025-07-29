@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
-import type { User as ProfileUser } from '@/lib/types'
+import type { User as ProfileUser, Trip, InviteToken } from '@/lib/types'
 
 interface AuthContextType {
   user: User | null
@@ -14,6 +14,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>
   signInWithGoogle: () => Promise<{ error: Error | null }>
   signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>
+  validateInviteToken: (token: string) => Promise<{ data: { invite: InviteToken; trip: Trip } | null; error: Error | null }>
+  signUpWithInvite: (token: string, email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: Error | null }>
   updateProfile: (updates: Partial<ProfileUser>) => Promise<{ error: Error | null }>
@@ -160,6 +162,90 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  const validateInviteToken = async (token: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('invite_tokens')
+        .select(`
+          *,
+          trips (
+            id,
+            name,
+            description,
+            start_date,
+            end_date,
+            created_by,
+            users!trips_created_by_fkey (
+              id,
+              full_name,
+              email,
+              avatar_url
+            )
+          )
+        `)
+        .eq('token', token)
+        .is('used_at', null)
+        .gt('expires_at', new Date().toISOString())
+        .single()
+
+      if (error) {
+        throw new Error('Invalid or expired invite link')
+      }
+
+      return { 
+        data: { 
+          invite: data, 
+          trip: data.trips 
+        }, 
+        error: null 
+      }
+    } catch (error) {
+      return { data: null, error: error as Error }
+    }
+  }
+
+  const signUpWithInvite = async (token: string, email: string, password: string, fullName?: string) => {
+    try {
+      // First validate the invite token
+      const { data: inviteData, error: inviteError } = await validateInviteToken(token)
+      if (inviteError || !inviteData) {
+        throw new Error('Invalid or expired invite link')
+      }
+
+      // Check if the email matches the invite
+      if (inviteData.invite.email !== email) {
+        throw new Error('This invite is for a different email address')
+      }
+
+      // Sign up the user
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
+      })
+
+      if (signUpError) throw signUpError
+
+      // Mark the invite as used and add user to trip
+      const { error: inviteUpdateError } = await supabase
+        .from('invite_tokens')
+        .update({ used_at: new Date().toISOString() })
+        .eq('token', token)
+
+      if (inviteUpdateError) {
+        console.error('Error updating invite token:', inviteUpdateError)
+      }
+
+      return { error: null }
+    } catch (error) {
+      return { error: error as Error }
+    }
+  }
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut()
@@ -214,6 +300,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signUp,
     signInWithGoogle,
     signInWithMagicLink,
+    validateInviteToken,
+    signUpWithInvite,
     signOut,
     resetPassword,
     updateProfile,

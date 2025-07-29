@@ -75,6 +75,9 @@ export async function middleware(request: NextRequest) {
   // Public routes that should redirect to dashboard if user is logged in
   const publicPaths = ['/welcome', '/login', '/signup', '/join-trip', '/auth/magic-link']
 
+  // Invite routes are always accessible (guests need to access them)
+  const inviteRoutes = ['/invite']
+
   const isProtectedPath = protectedPaths.some(path => 
     request.nextUrl.pathname.startsWith(path)
   )
@@ -82,6 +85,15 @@ export async function middleware(request: NextRequest) {
   const isPublicPath = publicPaths.some(path => 
     request.nextUrl.pathname.startsWith(path)
   )
+
+  const isInviteRoute = inviteRoutes.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  )
+
+  // Allow invite routes regardless of auth status
+  if (isInviteRoute) {
+    return response
+  }
 
   // Redirect to login if accessing protected route without auth
   if (isProtectedPath && !user) {
