@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from 'next/font/google'
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext'
@@ -47,17 +47,18 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#14b8a6' },
     { media: '(prefers-color-scheme: dark)', color: '#0d9488' },
   ],
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-};
+}
 
 export default function RootLayout({
   children,
