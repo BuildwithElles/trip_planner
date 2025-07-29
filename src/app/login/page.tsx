@@ -8,7 +8,7 @@ import { TripButton } from '@/components/ui/trip-button'
 import { TripInput } from '@/components/ui/trip-input'
 import { TripCard, TripCardContent, TripCardDescription, TripCardHeader, TripCardTitle } from '@/components/ui/trip-card'
 import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton'
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Plane } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Plane, Sparkles } from 'lucide-react'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -91,18 +91,32 @@ function LoginForm() {
           <TripCardHeader>
             <TripCardTitle className="text-center">Sign In</TripCardTitle>
             <TripCardDescription className="text-center">
-              Enter your email and password to access your account
+              Choose your preferred sign-in method
             </TripCardDescription>
           </TripCardHeader>
           
           <TripCardContent>
-            {/* Google OAuth Button */}
-            <div className="mb-6">
+            {/* Quick Sign-In Options */}
+            <div className="space-y-3 mb-6">
+              {/* Google OAuth Button */}
               <GoogleAuthButton 
                 onSignIn={handleGoogleSignIn}
                 disabled={loading}
                 className="w-full"
               />
+              
+              {/* Magic Link Button */}
+              <Link href="/auth/magic-link" className="block">
+                <TripButton
+                  variant="secondary"
+                  size="default"
+                  className="w-full"
+                  disabled={loading}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span className="ml-2">Continue with Magic Link</span>
+                </TripButton>
+              </Link>
             </div>
 
             {/* Divider */}
@@ -111,7 +125,7 @@ function LoginForm() {
                 <span className="w-full border-t border-neutral-200" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-3 text-neutral-500">Or continue with email</span>
+                <span className="bg-white px-3 text-neutral-500">Or use email & password</span>
               </div>
             </div>
 

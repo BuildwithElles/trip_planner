@@ -73,7 +73,7 @@ export async function middleware(request: NextRequest) {
   ]
 
   // Public routes that should redirect to dashboard if user is logged in
-  const publicPaths = ['/welcome', '/login', '/signup', '/join-trip']
+  const publicPaths = ['/welcome', '/login', '/signup', '/join-trip', '/auth/magic-link']
 
   const isProtectedPath = protectedPaths.some(path => 
     request.nextUrl.pathname.startsWith(path)
