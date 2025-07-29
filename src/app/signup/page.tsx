@@ -4,10 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check } from 'lucide-react'
+import { TripButton } from '@/components/ui/trip-button'
+import { TripInput } from '@/components/ui/trip-input'
+import { TripCard, TripCardContent, TripCardDescription, TripCardHeader, TripCardTitle } from '@/components/ui/trip-card'
+import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton'
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check, Plane } from 'lucide-react'
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   
-  const { signUp, loading: authLoading } = useAuth()
+  const { signUp, signInWithGoogle, loading: authLoading } = useAuth()
   const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,11 +79,24 @@ export default function SignupPage() {
     }
   }
 
+  const handleGoogleSignUp = async () => {
+    setError('')
+    const result = await signInWithGoogle()
+    
+    if (result.error) {
+      setError(result.error.message)
+    }
+    // Note: If successful, the user will be redirected via OAuth flow
+    return result
+  }
+
   // Don't render anything while auth is loading
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center animate-pulse">
+          <Plane className="w-8 h-8 text-white" />
+        </div>
       </div>
     )
   }
@@ -90,205 +104,212 @@ export default function SignupPage() {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-emerald-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-xl">
-          <CardContent className="pt-6 text-center">
-            <div className="mx-auto w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-              <Check className="h-6 w-6 text-emerald-600" />
-            </div>
-            <h2 className="text-xl font-semibold text-secondary-900 mb-2">
-              Account Created! 🎉
-            </h2>
-            <p className="text-secondary-600 mb-4">
-              Please check your email to verify your account, then sign in to start planning your trips.
-            </p>
-            <p className="text-sm text-secondary-500">
-              Redirecting to login page...
-            </p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <div className="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+          <TripCard>
+            <TripCardContent className="text-center py-8">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-green-100 flex items-center justify-center mb-6">
+                <Check className="w-8 h-8 text-green-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-neutral-800 mb-2">
+                Account Created Successfully! 🎉
+              </h2>
+              <p className="text-base text-neutral-600 mb-4">
+                Check your email to verify your account, then you can start planning amazing trips!
+              </p>
+              <p className="text-sm text-neutral-500">
+                Redirecting you to login...
+              </p>
+            </TripCardContent>
+          </TripCard>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-emerald-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      {/* Mobile-first container - max-w-md centered */}
+      <div className="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+        
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900 mb-2">
-            Join the Adventure! 🌟
+          {/* Logo/Brand Icon */}
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-trip-lg mb-6">
+            <Plane className="w-8 h-8 text-white" />
+          </div>
+          
+          <h1 className="text-2xl font-semibold text-neutral-800 mb-2">
+            Join TripTogether! ✈️
           </h1>
-          <p className="text-secondary-600">
-            Create your account and start planning unforgettable trips
+          <p className="text-base text-neutral-600">
+            Create your account and start planning amazing adventures with friends
           </p>
         </div>
 
-        {/* Signup Form */}
-        <Card className="shadow-xl">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Create Account</CardTitle>
-            <CardDescription className="text-center">
-              Enter your details to get started
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* Signup Form Card */}
+        <TripCard>
+          <TripCardHeader>
+            <TripCardTitle className="text-center">Create Account</TripCardTitle>
+            <TripCardDescription className="text-center">
+              Get started with your trip planning journey
+            </TripCardDescription>
+          </TripCardHeader>
+          
+          <TripCardContent>
+            {/* Google OAuth Button */}
+            <div className="mb-6">
+              <GoogleAuthButton 
+                onSignIn={handleGoogleSignUp}
+                disabled={loading}
+                className="w-full"
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-neutral-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-3 text-neutral-500">Or continue with email</span>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Full Name Field */}
               <div className="space-y-2">
-                <label htmlFor="fullName" className="text-sm font-medium text-secondary-700">
+                <label htmlFor="fullName" className="text-sm font-medium text-neutral-800">
                   Full Name
                 </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
-                  <Input
-                    id="fullName"
-                    name="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className="pl-10"
-                    disabled={loading}
-                    required
-                  />
-                </div>
+                <TripInput
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  leftIcon={<User className="h-4 w-4" />}
+                  disabled={loading}
+                  required
+                />
               </div>
 
               {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-secondary-700">
+                <label htmlFor="email" className="text-sm font-medium text-neutral-800">
                   Email
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="pl-10"
-                    disabled={loading}
-                    required
-                  />
-                </div>
+                <TripInput
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  leftIcon={<Mail className="h-4 w-4" />}
+                  disabled={loading}
+                  required
+                />
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-secondary-700">
+                <label htmlFor="password" className="text-sm font-medium text-neutral-800">
                   Password
                 </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Create a password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="pl-10 pr-10"
-                    disabled={loading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
-                    disabled={loading}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
+                <TripInput
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Create a password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  leftIcon={<Lock className="h-4 w-4" />}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-neutral-500 hover:text-neutral-700 focus:outline-none"
+                      disabled={loading}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  }
+                  disabled={loading}
+                  required
+                />
               </div>
 
               {/* Confirm Password Field */}
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium text-secondary-700">
+                <label htmlFor="confirmPassword" className="text-sm font-medium text-neutral-800">
                   Confirm Password
                 </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="pl-10 pr-10"
-                    disabled={loading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
-                    disabled={loading}
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Password Requirements */}
-              <div className="text-xs text-secondary-500">
-                Password must be at least 6 characters long
+                <TripInput
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  leftIcon={<Lock className="h-4 w-4" />}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="text-neutral-500 hover:text-neutral-700 focus:outline-none"
+                      disabled={loading}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  }
+                  disabled={loading}
+                  required
+                />
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200">
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200">
                   <p className="text-red-600 text-sm">{error}</p>
                 </div>
               )}
 
               {/* Submit Button */}
-              <Button
+              <TripButton
                 type="submit"
+                variant="primary"
+                size="lg"
                 className="w-full"
                 loading={loading}
                 disabled={loading}
               >
-                {loading ? 'Creating Account...' : (
+                {loading ? 'Creating account...' : (
                   <>
                     Create Account
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
-              </Button>
+              </TripButton>
             </form>
 
             {/* Links */}
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-secondary-300" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-secondary-500">Or</span>
-                </div>
-              </div>
-
-              <div className="mt-4 text-center">
-                <span className="text-sm text-secondary-600">Already have an account? </span>
-                <Link 
-                  href="/login" 
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  Sign in
-                </Link>
-              </div>
+            <div className="mt-6 text-center">
+              <span className="text-sm text-neutral-600">Already have an account? </span>
+              <Link 
+                href="/login" 
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Sign in
+              </Link>
             </div>
-          </CardContent>
-        </Card>
+          </TripCardContent>
+        </TripCard>
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-secondary-500">
+          <p className="text-xs text-neutral-500">
             By creating an account, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>

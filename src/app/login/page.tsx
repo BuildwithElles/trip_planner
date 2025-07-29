@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { TripButton } from '@/components/ui/trip-button'
 import { TripInput } from '@/components/ui/trip-input'
 import { TripCard, TripCardContent, TripCardDescription, TripCardHeader, TripCardTitle } from '@/components/ui/trip-card'
+import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton'
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Plane } from 'lucide-react'
 
 function LoginForm() {
@@ -16,7 +17,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
-  const { signIn, loading: authLoading } = useAuth()
+  const { signIn, signInWithGoogle, loading: authLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -41,6 +42,17 @@ function LoginForm() {
     } else {
       router.push(redirectTo)
     }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setError('')
+    const result = await signInWithGoogle()
+    
+    if (result.error) {
+      setError(result.error.message)
+    }
+    // Note: If successful, the user will be redirected via OAuth flow
+    return result
   }
 
   // Don't render anything while auth is loading
@@ -84,6 +96,25 @@ function LoginForm() {
           </TripCardHeader>
           
           <TripCardContent>
+            {/* Google OAuth Button */}
+            <div className="mb-6">
+              <GoogleAuthButton 
+                onSignIn={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full"
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-neutral-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-3 text-neutral-500">Or continue with email</span>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
               <div className="space-y-2">
@@ -163,15 +194,6 @@ function LoginForm() {
                 >
                   Forgot your password?
                 </Link>
-              </div>
-              
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-neutral-200" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-neutral-500">Or</span>
-                </div>
               </div>
 
               <div className="text-center">

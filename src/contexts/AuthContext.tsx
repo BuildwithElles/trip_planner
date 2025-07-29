@@ -12,6 +12,7 @@ interface AuthContextType {
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>
+  signInWithGoogle: () => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: Error | null }>
   updateProfile: (updates: Partial<ProfileUser>) => Promise<{ error: Error | null }>
@@ -130,6 +131,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        },
+      })
+      return { error }
+    } catch (error) {
+      return { error: error as Error }
+    }
+  }
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut()
@@ -182,6 +197,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
     resetPassword,
     updateProfile,
