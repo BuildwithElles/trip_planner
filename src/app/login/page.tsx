@@ -4,10 +4,10 @@ import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react'
+import { TripButton } from '@/components/ui/trip-button'
+import { TripInput } from '@/components/ui/trip-input'
+import { TripCard, TripCardContent, TripCardDescription, TripCardHeader, TripCardTitle } from '@/components/ui/trip-card'
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Plane } from 'lucide-react'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -46,93 +46,101 @@ function LoginForm() {
   // Don't render anything while auth is loading
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center animate-pulse">
+          <Plane className="w-8 h-8 text-white" />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-emerald-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      {/* Mobile-first container - max-w-md centered */}
+      <div className="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+        
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900 mb-2">
+          {/* Logo/Brand Icon */}
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-trip-lg mb-6">
+            <Plane className="w-8 h-8 text-white" />
+          </div>
+          
+          <h1 className="text-2xl font-semibold text-neutral-800 mb-2">
             Welcome back! ✈️
           </h1>
-          <p className="text-secondary-600">
+          <p className="text-base text-neutral-600">
             Sign in to continue planning your amazing trips
           </p>
         </div>
 
-        {/* Login Form */}
-        <Card className="shadow-xl">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
-            <CardDescription className="text-center">
+        {/* Login Form Card */}
+        <TripCard>
+          <TripCardHeader>
+            <TripCardTitle className="text-center">Sign In</TripCardTitle>
+            <TripCardDescription className="text-center">
               Enter your email and password to access your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </TripCardDescription>
+          </TripCardHeader>
+          
+          <TripCardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-secondary-700">
+                <label htmlFor="email" className="text-sm font-medium text-neutral-800">
                   Email
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    disabled={loading}
-                    required
-                  />
-                </div>
+                <TripInput
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  leftIcon={<Mail className="h-4 w-4" />}
+                  disabled={loading}
+                  required
+                />
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-secondary-700">
+                <label htmlFor="password" className="text-sm font-medium text-neutral-800">
                   Password
                 </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    disabled={loading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
-                    disabled={loading}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
+                <TripInput
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  leftIcon={<Lock className="h-4 w-4" />}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-neutral-500 hover:text-neutral-700 focus:outline-none"
+                      disabled={loading}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  }
+                  disabled={loading}
+                  required
+                />
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200">
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200">
                   <p className="text-red-600 text-sm">{error}</p>
                 </div>
               )}
 
               {/* Submit Button */}
-              <Button
+              <TripButton
                 type="submit"
+                variant="primary"
+                size="lg"
                 className="w-full"
                 loading={loading}
                 disabled={loading}
@@ -143,7 +151,7 @@ function LoginForm() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
-              </Button>
+              </TripButton>
             </form>
 
             {/* Links */}
@@ -151,7 +159,7 @@ function LoginForm() {
               <div className="text-center">
                 <Link 
                   href="/forgot-password" 
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Forgot your password?
                 </Link>
@@ -159,29 +167,29 @@ function LoginForm() {
               
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-secondary-300" />
+                  <span className="w-full border-t border-neutral-200" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-secondary-500">Or</span>
+                  <span className="bg-white px-2 text-neutral-500">Or</span>
                 </div>
               </div>
 
               <div className="text-center">
-                <span className="text-sm text-secondary-600">Don&apos;t have an account? </span>
+                <span className="text-sm text-neutral-600">Don&apos;t have an account? </span>
                 <Link 
                   href="/signup" 
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Sign up
                 </Link>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </TripCardContent>
+        </TripCard>
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-secondary-500">
+          <p className="text-xs text-neutral-500">
             By signing in, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
@@ -192,8 +200,10 @@ function LoginForm() {
 
 function LoginPageFallback() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-emerald-50 flex items-center justify-center p-4">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center animate-pulse">
+        <Plane className="w-8 h-8 text-white" />
+      </div>
     </div>
   )
 }

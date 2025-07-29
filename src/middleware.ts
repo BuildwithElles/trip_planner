@@ -73,7 +73,7 @@ export async function middleware(request: NextRequest) {
   ]
 
   // Public routes that should redirect to dashboard if user is logged in
-  const publicPaths = ['/login', '/signup']
+  const publicPaths = ['/welcome', '/login', '/signup', '/join-trip']
 
   const isProtectedPath = protectedPaths.some(path => 
     request.nextUrl.pathname.startsWith(path)
@@ -90,8 +90,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect to dashboard if accessing public auth pages while logged in
-  if (isPublicPath && user) {
+  // Redirect to dashboard if accessing public auth pages while logged in (except welcome)
+  if (isPublicPath && user && request.nextUrl.pathname !== '/welcome') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
@@ -100,7 +100,7 @@ export async function middleware(request: NextRequest) {
     if (user) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     } else {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(new URL('/welcome', request.url))
     }
   }
 
