@@ -50,8 +50,7 @@ export default function MorePage() {
       label: 'Chat',
       description: 'Group conversations',
       color: 'bg-green-100 text-green-600',
-      href: '/chat',
-      comingSoon: true
+      href: '/chat'
     },
     {
       icon: Settings,
@@ -121,6 +120,16 @@ export default function MorePage() {
             if (item.href === '/outfits') {
               return (
                 <Link key={item.label} href={item.href}>
+                  <div className="w-full bg-white rounded-2xl p-4 shadow-trip-lg flex items-center gap-4 hover:bg-neutral-50 transition-colors cursor-pointer">
+                    {ItemContent}
+                  </div>
+                </Link>
+              )
+            }
+
+            if (item.href === '/chat' || item.href === '/guests') {
+              return (
+                <Link key={item.label} href={`${item.href}/demo-trip`}>
                   <div className="w-full bg-white rounded-2xl p-4 shadow-trip-lg flex items-center gap-4 hover:bg-neutral-50 transition-colors cursor-pointer">
                     {ItemContent}
                   </div>
