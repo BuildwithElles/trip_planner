@@ -8,11 +8,11 @@ import {
   Camera, 
   Settings, 
   LogOut,
-  HelpCircle,
-  Shield,
   Star,
-  ChevronRight
+  ChevronRight,
+  Shirt
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function MorePage() {
   const { signOut, profile } = useAuth()
@@ -23,6 +23,14 @@ export default function MorePage() {
 
   const menuItems = [
     {
+      icon: Shirt,
+      label: 'Outfits',
+      description: 'Plan your outfits for each event',
+      color: 'bg-purple-100 text-purple-600',
+      href: '/outfits',
+      badge: '4'
+    },
+    {
       icon: Users,
       label: 'Manage Guests',
       description: 'Invite and manage trip members',
@@ -30,39 +38,28 @@ export default function MorePage() {
       href: '/guests'
     },
     {
-      icon: MessageSquare,
-      label: 'Group Chat',
-      description: 'Trip conversations and updates',
-      color: 'bg-green-100 text-green-600',
-      href: '/chat'
-    },
-    {
       icon: Camera,
       label: 'Photos',
-      description: 'Shared trip memories',
-      color: 'bg-purple-100 text-purple-600',
-      href: '/photos'
+      description: 'Share trip memories',
+      color: 'bg-orange-100 text-orange-600',
+      href: '/photos',
+      comingSoon: true
+    },
+    {
+      icon: MessageSquare,
+      label: 'Chat',
+      description: 'Group conversations',
+      color: 'bg-green-100 text-green-600',
+      href: '/chat',
+      comingSoon: true
     },
     {
       icon: Settings,
-      label: 'Trip Settings',
-      description: 'Edit trip details and preferences',
+      label: 'Settings',
+      description: 'App preferences',
       color: 'bg-neutral-100 text-neutral-600',
-      href: '/settings'
-    },
-    {
-      icon: HelpCircle,
-      label: 'Help & Support',
-      description: 'Get help and contact support',
-      color: 'bg-orange-100 text-orange-600',
-      href: '/help'
-    },
-    {
-      icon: Shield,
-      label: 'Privacy',
-      description: 'Privacy settings and data',
-      color: 'bg-indigo-100 text-indigo-600',
-      href: '/privacy'
+      href: '/settings',
+      comingSoon: true
     }
   ]
 
@@ -96,19 +93,48 @@ export default function MorePage() {
         <div className="space-y-2 mb-6">
           {menuItems.map((item) => {
             const Icon = item.icon
-            return (
-              <button
-                key={item.label}
-                className="w-full bg-white rounded-2xl p-4 shadow-trip-lg flex items-center gap-4 hover:bg-neutral-50 transition-colors"
-              >
+            const ItemContent = (
+              <>
                 <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 text-left">
-                  <h3 className="font-medium text-neutral-800">{item.label}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-neutral-800">{item.label}</h3>
+                    {item.badge && (
+                      <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-neutral-600">{item.description}</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-neutral-400" />
+                <div className="flex items-center">
+                  {item.comingSoon && (
+                    <span className="text-xs text-neutral-500 mr-2">Coming Soon</span>
+                  )}
+                  <ChevronRight className="w-5 h-5 text-neutral-400" />
+                </div>
+              </>
+            )
+
+            if (item.href === '/outfits') {
+              return (
+                <Link key={item.label} href={item.href}>
+                  <div className="w-full bg-white rounded-2xl p-4 shadow-trip-lg flex items-center gap-4 hover:bg-neutral-50 transition-colors cursor-pointer">
+                    {ItemContent}
+                  </div>
+                </Link>
+              )
+            }
+
+            return (
+              <button
+                key={item.label}
+                className="w-full bg-white rounded-2xl p-4 shadow-trip-lg flex items-center gap-4 hover:bg-neutral-50 transition-colors disabled:opacity-60"
+                disabled={item.comingSoon}
+              >
+                {ItemContent}
               </button>
             )
           })}
