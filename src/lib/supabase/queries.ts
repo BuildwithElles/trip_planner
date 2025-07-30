@@ -418,7 +418,14 @@ export async function getTripMessages(tripId: string): Promise<Message[]> {
 export async function sendMessage(message: Omit<Message, 'id' | 'sent_at'>) {
   const { data, error } = await client
     .from('messages')
-    .insert(message)
+    .insert({
+      trip_id: message.trip_id,
+      user_id: message.user_id,
+      content: message.content,
+      attachment_url: message.attachment_url || null,
+      attachment_type: message.attachment_type || null,
+      attachment_name: message.attachment_name || null
+    })
     .select()
     .single()
   
