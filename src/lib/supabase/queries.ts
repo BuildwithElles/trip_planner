@@ -8,7 +8,8 @@ import type {
   PackingItem, 
   Photo, 
   Message, 
-  User 
+  User,
+  InviteToken
 } from '@/lib/types'
 
 // Types for realtime subscriptions
@@ -479,4 +480,74 @@ export function subscribeToTripUpdates(tripId: string, callback: (payload: Realt
       callback
     )
     .subscribe()
-} 
+}
+
+// ================================
+// INVITE TOKEN QUERIES
+// ================================
+
+export async function createInviteToken(tripId: string, email: string): Promise<InviteToken> {
+  const user = await getCurrentUser()
+  if (!user) throw new Error('User not authenticated')
+
+  const token = crypto.randomUUID()
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + 7) // 7 days from now
+
+  const { data, error } = await client
+    .from('invite_tokens')
+    .insert({
+      trip_id: tripId,
+      token,
+      email,
+      expires_at: expiresAt.toISOString(),
+      created_by: user.id
+    })
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+export async function getInviteTokens(tripId: string): Promise<InviteToken[]> {
+  const { data, error } = await client
+    .from('invite_tokens')
+    .select('*')
+    .eq('trip_id', tripId)
+    .order('created_at', { ascending: false })
+  
+  if (error) throw error
+  return data || []
+}
+
+export async function validateInviteToken(token: string): Promise<InviteToken | null> {
+  const { data, error } = await client
+    .from('invite_tokens')
+    .select('*')
+    .eq('token', token)
+    .is('used_at', null)
+    .gt('expires_at', new Date().toISOString())
+    .single()
+  
+  if (error) return null
+  return data
+}
+
+export async function useInviteToken(token: string): Promise<void> {
+  const { error } = await client
+    .from('invite_tokens')
+    .update({ used_at: new Date().toISOString() })
+    .eq('token', token)
+  
+  if (error) throw error
+}
+
+export async function deleteInviteToken(tokenId: string): Promise<void> {
+  const { error } = await client
+    .from('invite_tokens')
+    .delete()
+    .eq('id', tokenId)
+  
+  if (error) throw error
+}
