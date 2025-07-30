@@ -415,7 +415,14 @@ export async function getTripMessages(tripId: string): Promise<Message[]> {
   return data || []
 }
 
-export async function sendMessage(message: Omit<Message, 'id' | 'sent_at'>) {
+export async function sendMessage(message: {
+  trip_id: string
+  user_id: string
+  content: string
+  attachment_url?: string
+  attachment_type?: 'image' | 'file'
+  attachment_name?: string
+}) {
   const { data, error } = await client
     .from('messages')
     .insert({
