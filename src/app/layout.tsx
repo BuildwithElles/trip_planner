@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from 'next/font/google'
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext'
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
+// Use system fonts as fallback for build environments without internet access
+const inter = {
+  className: 'font-sans',
   variable: '--font-inter',
-})
+}
 
 export const metadata: Metadata = {
   title: "Trip Planner - Plan Amazing Adventures Together",
